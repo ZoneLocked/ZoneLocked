@@ -77,7 +77,7 @@ Questions or bugs? [Reach out on CurseForge](https://www.curseforge.com/wow/addo
 ## 🪪 License
 
 **All Rights Reserved**  
-© 2025 Deju
+© 2025 ZoneLocked
 
 This World of Warcraft AddOn and its source code are protected under international copyright laws.
 

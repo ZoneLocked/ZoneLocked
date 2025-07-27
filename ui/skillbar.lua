@@ -4,7 +4,7 @@ function ZoneLocked.SkillBarMixin:UpdateBar()
     local current = ZoneLockedData.skillPoints or 0
     local needed = ZoneLocked.GetSkillTokenCost()
     print(needed, current)
-    self.bar:SetMinMaxValues(0, needed) 
+    self.bar:SetMinMaxValues(0, needed)
     self.bar:SetValue(current)
     self.text:SetText(current .. " / " .. needed .. " Skill Points")
 end
@@ -23,7 +23,9 @@ function ZoneLocked.CreateSkillBar()
     frame:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
         edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-        tile = true, tileSize = 16, edgeSize = 16,
+        tile = true,
+        tileSize = 16,
+        edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
 
@@ -70,4 +72,3 @@ function ZoneLocked.CreateSkillBar()
     frame.label = label
     ZoneLocked.SkillBarFrame = frame
 end
-
