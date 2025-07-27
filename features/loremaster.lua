@@ -2,16 +2,36 @@ local function FormatZoneIDs(ids)
     return type(ids) == "table" and table.concat(ids, ", ") or tostring(ids)
 end
 
-function ZoneLocked.LoremasterSoftLockCheck()
-    if ZoneLockedData.tokens > 0 then
-        ZoneLocked.DebugPrint("More than 0 tokens available, softlock check not needed.")
+function LoremasterSoftLockCheck()
+    local data = ZoneLockedData
+    if data.mode ~= "loremaster" then
         return false
     end
 
-    for _, achievement in ipairs(ZoneLocked.LoremasterAchievements) do
-        if ZoneLockedData.LoremasterAchieved[achievement.id] then
-            for d, zoneId in pairs(achievement.idList) do
-                if not ZoneLockedData.unlocked[zoneId] then
+    local playerFaction = UnitFactionGroup("player")
+
+    local excludedZones = {}
+    local raceDefaults = ZoneLocked.RaceDefaults
+    for _, zoneId in pairs(raceDefaults) do
+        excludedZones[zoneId] = true
+    end
+    for _, zoneId in ipairs(ZoneLocked.LoremasterAutoUnlocks) do
+        excludedZones[zoneId] = true
+    end
+
+    local unlocked = data.unlocked
+    local achieved = data.LoremasterAchieved
+    local loremasterAchievements = ZoneLocked.LoremasterAchievements
+
+    for i = 1, #loremasterAchievements do
+        local achievement = loremasterAchievements[i]
+
+        if (not achievement.faction or achievement.faction == playerFaction) and not achieved[achievement.id] then
+            local idList = achievement.idList
+            for j = 1, #idList do
+                local zoneId = idList[j]
+                if unlocked[zoneId] and not excludedZones[zoneId] then
+                    ZoneLocked.DebugPrint("Zone", zoneId, "is unlocked and has incomplete achievement", achievement.id)
                     return false
                 end
             end
@@ -24,10 +44,10 @@ end
 function ZoneLocked.EnableLoremasterMode()
     ZoneLocked.DebugPrint("EnableLoremasterMode() called")
 
-    if not ZoneLockedData.LoremasterStartingZoneChecked then
-        ZoneLockedData.tokens = (ZoneLockedData.tokens or 0) + 1
-        ZoneLockedData.LoremasterStartingZoneChecked = true
-    end
+    -- if not ZoneLockedData.LoremasterStartingZoneChecked then
+    --     ZoneLockedData.tokens = (ZoneLockedData.tokens or 0) + 1
+    --     ZoneLockedData.LoremasterStartingZoneChecked = true
+    -- end
 
     if not ZoneLocked.SkillEventFrame then
         local f = CreateFrame("Frame")
@@ -64,7 +84,7 @@ function ZoneLocked.UpdateLoremasterAchievements()
         end
     end
 
-    local softlocked = ZoneLocked.LoremasterSoftLockCheck()
+    local softlocked = LoremasterSoftLockCheck()
 
     if softlocked then
         ZoneLocked.DebugPrint("Player softlocked! Granting a token.")
@@ -128,7 +148,7 @@ function ZoneLocked.CheckAchievementZone(achievementID)
             for _, zoneID in ipairs(zoneInfo.idList) do
                 if not ZoneLockedData.unlocked[zoneID] then
                     ZoneLockedData.unlocked[zoneID] = true
-                    ZoneLocked.Print("Unlocked zone with ID: " .. zoneID)
+                    ZoneLocked.DebugPrint("Unlocked zone with ID: " .. zoneID)
                 end
             end
 

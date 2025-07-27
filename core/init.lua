@@ -18,8 +18,9 @@ ZoneLockedData.completedZones = ZoneLockedData.completedZones or {}
 ZoneLockedData.LoremasterAchieved = ZoneLockedData.LoremasterAchieved or {}
 ZoneLockedData.LoremasterStartingZoneChecked = ZoneLockedData.LoremasterStartingZoneChecked or false
 
--- ZoneLocked.debug = ZoneLockedData.debug or false
-ZoneLocked.debug = true
+ZoneLocked.debug = ZoneLockedData.debug or false
+-- ZoneLocked.debug = true
+
 ZoneLockedData.expansions = ZoneLockedData.expansions or {
     Outland = false,
     Northrend = false,
