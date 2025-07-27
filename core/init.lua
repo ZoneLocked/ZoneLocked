@@ -15,8 +15,12 @@ ZoneLockedData.tokensFromToken = ZoneLockedData.tokensFromToken or 0
 ZoneLocked.TimeOutofBounds = ZoneLockedData.TimeOutofBounds or 0
 ZoneLockedData.attClaimedZones = ZoneLockedData.attClaimedZones or {}
 ZoneLockedData.completedZones = ZoneLockedData.completedZones or {}
+ZoneLockedData.LoremasterAchieved = ZoneLockedData.LoremasterAchieved or {}
+ZoneLockedData.LoremasterStartingZoneChecked = ZoneLockedData.LoremasterStartingZoneChecked or false
 
 ZoneLocked.debug = ZoneLockedData.debug or false
+-- ZoneLocked.debug = true
+
 ZoneLockedData.expansions = ZoneLockedData.expansions or {
     Outland = false,
     Northrend = false,

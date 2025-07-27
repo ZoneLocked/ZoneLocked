@@ -55,13 +55,15 @@ function ZoneLocked.ShowMainUI()
 
     ZoneLocked.tabs = {}
 
-    ZoneLocked.tabs[1] = ZoneLocked.CreateMenuIconButton(f, "Interface\\Icons\\achievement_bg_killxenemies_generalsroom", "Mode", 1, 1)
-    ZoneLocked.tabs[2] = ZoneLocked.CreateMenuIconButton(f, "Interface\\Icons\\achievement_zone_kalimdor_01", "Zones", 2, 2)
+    ZoneLocked.tabs[1] = ZoneLocked.CreateMenuIconButton(f, "Interface\\Icons\\achievement_bg_killxenemies_generalsroom",
+        "Mode", 1, 1)
+    ZoneLocked.tabs[2] = ZoneLocked.CreateMenuIconButton(f, "Interface\\Icons\\achievement_zone_kalimdor_01", "Zones", 2,
+        2)
     ZoneLocked.tabs[3] = ZoneLocked.CreateMenuIconButton(f, "Interface\\Icons\\inv_gizmo_02", "Settings", 3, 3)
 
     f.contentFrames = {}
 
-    for i = 1, 3 do
+    for i = 1, #ZoneLocked.tabs do
         local frame = CreateFrame("Frame", nil, f)
         frame:SetSize(740, 520)
         frame:SetPoint("TOPLEFT", 50, -40)
@@ -127,6 +129,8 @@ function ZoneLocked.CreateModeTab(parent)
         ZoneLocked.CreateATTProgressSummaryTab(content)
     elseif mode == "manual" then
         ZoneLocked.ShowManualTab(content)
+    elseif mode == "loremaster" then
+        ZoneLocked.CreateLoremasterSummaryTab(content)
     else
         local info = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
         info:SetPoint("TOPLEFT", 20, -60)
@@ -163,9 +167,9 @@ function ZoneLocked.CreateZonesTab(parent)
                 -- 🚫 Hopp over hvis Outland eller Northrend er deaktivert
                 local continent = ZoneLocked.GetContinentForZone(zoneID)
                 if not (
-                    (continent == 101 and not ZoneLockedData.enableOutland) or
-                    (continent == 113 and not ZoneLockedData.enableNorthrend)
-                ) then
+                        (continent == 101 and not ZoneLockedData.enableOutland) or
+                        (continent == 113 and not ZoneLockedData.enableNorthrend)
+                    ) then
                     local isUnlocked = ZoneLockedData.unlocked and ZoneLockedData.unlocked[zoneID]
                     local zoneData = {
                         name = info.name,
@@ -211,7 +215,6 @@ function ZoneLocked.CreateZonesTab(parent)
     parent.zonesTab = frame
 end
 
-
 function ZoneLocked.CreateSettingsTab(parent)
     if parent.settingsTab then
         parent.settingsTab:Show()
@@ -231,7 +234,7 @@ function ZoneLocked.CreateSettingsTab(parent)
     desc:SetWidth(600)
     desc:SetJustifyH("LEFT")
     desc:SetText("These options let you control which expansions are available to unlock.\n" ..
-                 "If disabled, connected zones from that expansion will be ignored.")
+        "If disabled, connected zones from that expansion will be ignored.")
 
     local spacingX = 260
     local startX = 16
@@ -298,7 +301,8 @@ function ZoneLocked.CreateSettingsTab(parent)
     resetDesc:SetPoint("TOPLEFT", resetTitle, "BOTTOMLEFT", 0, -4)
     resetDesc:SetWidth(500)
     resetDesc:SetJustifyH("LEFT")
-    resetDesc:SetText("This will remove all unlocked zones and reset your mode.\nYour token balance will remain unchanged.")
+    resetDesc:SetText(
+        "This will remove all unlocked zones and reset your mode.\nYour token balance will remain unchanged.")
 
     local resetBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     resetBtn:SetSize(160, 24)
@@ -369,10 +373,18 @@ function ZoneLocked.CreateSkillModeSummaryTab(parent)
 
     -- Expansion max levels
     local expansionMax = {
-        ["Classic"] = 300, ["Outland"] = 75, ["Northrend"] = 75,
-        ["Cataclysm"] = 75, ["Pandaria"] = 75, ["Draenor"] = 100,
-        ["Legion"] = 100, ["Kul Tiran"] = 175, ["Zandalari"] = 175,
-        ["Shadowlands"] = 100, ["Dragon Isles"] = 100, ["Khaz Algar"] = 100,
+        ["Classic"] = 300,
+        ["Outland"] = 75,
+        ["Northrend"] = 75,
+        ["Cataclysm"] = 75,
+        ["Pandaria"] = 75,
+        ["Draenor"] = 100,
+        ["Legion"] = 100,
+        ["Kul Tiran"] = 175,
+        ["Zandalari"] = 175,
+        ["Shadowlands"] = 100,
+        ["Dragon Isles"] = 100,
+        ["Khaz Algar"] = 100,
     }
 
     -- Build 3-column layout
@@ -505,4 +517,180 @@ function ZoneLocked.ShowATTProgressUI()
     frame.progressBar:SetStatusBarColor(r, g, 0)
 
     frame:Show()
+end
+
+local CONTINENT_TO_EXPANSION = {
+    ["Outland"] = "Outland",
+    ["Northrend"] = "Northrend",
+    ["Cataclysm"] = "Cataclysm",
+    ["Pandaria"] = "Pandaria",
+    ["Draenor"] = "Draenor",
+    ["Broken Isles"] = "BrokenIsles",
+    ["BFA"] = "BFA",
+    ["Shadowlands"] = "Shadowlands",
+}
+
+function ZoneLocked.CreateLoremasterSummaryTab(parent)
+    local scroll = CreateFrame("ScrollFrame", nil, parent, "UIPanelScrollFrameTemplate")
+    scroll:SetPoint("TOPLEFT")
+    scroll:SetPoint("BOTTOMRIGHT")
+
+    local enabled = ZoneLockedData.expansions
+
+    local content = CreateFrame("Frame", nil, scroll)
+    scroll:SetScrollChild(content)
+    content:SetSize(parent:GetWidth() - 20, 2000)
+
+    local title = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    title:SetPoint("TOPLEFT", 10, -10)
+    title:SetText("|cffccccffZoneLocked Loremaster Mode|r")
+
+    local info = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    info:SetPoint("TOPLEFT", 10, -40)
+    info:SetWidth(600)
+    info:SetJustifyH("LEFT")
+    info:SetText("This mode automatically unlocks zones and grants tokens based on Loremaster achievements.\n" ..
+        "Progress is tracked per achievement and continent.\n" ..
+        "Achievements are checked on login and when earned. Tokens are only granted when a zone is fully completed and only if the achievement was completed on this character.")
+
+    local y = -100
+    local englishFaction = UnitFactionGroup("player")
+
+    -- Group achievements by continent in the given order
+    local continentGroups = {}
+    local globalTotal, globalCompleted = 0, 0
+
+    for _, data in ipairs(ZoneLocked.LoremasterAchievements) do
+        if data.faction == nil or data.faction == englishFaction then
+            local continent = data.continent or "Other"
+            if not continentGroups[continent] then
+                continentGroups[continent] = {}
+            end
+            table.insert(continentGroups[continent], data)
+        end
+    end
+
+    -- Sorted continent order
+    local sortedContinents = {}
+    for continent in pairs(continentGroups) do
+        table.insert(sortedContinents, continent)
+    end
+
+    -- Track headers and frames
+    local continentFrames = {}
+
+    for _, continent in ipairs(sortedContinents) do
+        local expansionKey = CONTINENT_TO_EXPANSION[continent]
+        local expansionEnabled = (expansionKey == nil) or enabled[expansionKey]
+
+        if expansionEnabled then
+            local entries = continentGroups[continent]
+            local continentTotal, continentCompleted = 0, 0
+
+            local continentFrame = CreateFrame("Frame", nil, content)
+            continentFrame:SetSize(600, 10)
+            continentFrame:SetPoint("TOPLEFT", 10, y)
+
+            local header = continentFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
+            header:SetPoint("TOPLEFT", 0, 0)
+            header:SetText("|cffffff00" .. continent .. "|r")
+
+            continentFrame.isCollapsed = false
+
+            local function updateVisibility()
+                local offset = -24
+                if not continentFrame.isCollapsed then
+                    for _, data in ipairs(entries) do
+                        local achievementID = data.id
+                        local achieved = ZoneLockedData.LoremasterAchieved and
+                            ZoneLockedData.LoremasterAchieved[achievementID]
+                        local _, name, _, _, _, _, _, _, _, icon = GetAchievementInfo(achievementID)
+                        name = name or data.name or ("Achievement #" .. achievementID)
+
+                        local zoneList = {}
+                        for _, zoneID in ipairs(data.idList or {}) do
+                            local zoneName = ZoneLocked.ZoneNames.Zones[zoneID]
+                            table.insert(zoneList, zoneName or ("ZoneID " .. zoneID))
+                        end
+
+                        local statusColor = achieved and "|cff00ff00" or "|cffff2020"
+                        local line = statusColor ..
+                            name .. "|r — Zones: |cffffffaa" .. table.concat(zoneList, ", ") .. "|r"
+
+                        local iconTexture = continentFrame:CreateTexture(nil, "ARTWORK")
+                        iconTexture:SetSize(16, 16)
+                        iconTexture:SetPoint("TOPLEFT", 0, offset)
+                        iconTexture:SetTexture(icon or [[Interface\Icons\INV_Misc_QuestionMark]])
+
+                        local linkFrame = CreateFrame("Frame", nil, continentFrame)
+                        linkFrame:SetSize(600, 20)
+                        linkFrame:SetPoint("TOPLEFT", 20, offset)
+
+                        local label = linkFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                        label:SetPoint("LEFT")
+                        label:SetText(line)
+
+                        linkFrame:EnableMouse(true)
+                        linkFrame:SetScript("OnEnter", function()
+                            GameTooltip:SetOwner(linkFrame, "ANCHOR_RIGHT")
+                            GameTooltip:SetHyperlink("achievement:" .. achievementID)
+                            GameTooltip:Show()
+                        end)
+                        linkFrame:SetScript("OnLeave", function()
+                            GameTooltip:Hide()
+                        end)
+                        linkFrame:SetScript("OnMouseUp", function()
+                            UIParentLoadAddOn("Blizzard_AchievementUI")
+                            AchievementFrame_ShowSubFrame("AchievementFrameAchievements")
+                            AchievementFrame_SelectAchievement(achievementID)
+                        end)
+
+                        offset = offset - 20
+                        continentTotal = continentTotal + 1
+                        if achieved then continentCompleted = continentCompleted + 1 end
+                    end
+
+                    local summary = continentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                    summary:SetPoint("TOPLEFT", 0, offset)
+                    summary:SetText(string.format(
+                        "Progress: |cff00ff00%d|r / |cffffff00%d|r achievements completed in %s",
+                        continentCompleted, continentTotal, continent))
+                    offset = offset - 30
+
+                    continentFrame:SetHeight(-offset)
+                else
+                    continentFrame:SetHeight(24)
+                end
+            end
+
+            updateVisibility()
+
+            header:SetScript("OnMouseUp", function()
+                continentFrame.isCollapsed = not continentFrame.isCollapsed
+                for i = #continentFrame:GetChildren(), 1, -1 do
+                    local child = select(i, continentFrame:GetChildren())
+                    if child ~= header then
+                        child:Hide()
+                        child:SetParent(nil)
+                    end
+                end
+                updateVisibility()
+            end)
+
+            y = y - continentFrame:GetHeight() - 10
+            continentFrames[continent] = continentFrame
+
+            globalTotal = globalTotal + continentTotal
+            globalCompleted = globalCompleted + continentCompleted
+        else
+            ZoneLocked.DebugPrint("Skipping " .. continent .. " (expansion disabled)")
+        end
+    end
+
+
+    local globalSummary = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    globalSummary:SetPoint("TOPLEFT", 10, y - 10)
+    globalSummary:SetText(string.format(
+        "Overall Loremaster Progress: |cff00ff00%d|r / |cffffff00%d|r achievements completed",
+        globalCompleted, globalTotal))
 end

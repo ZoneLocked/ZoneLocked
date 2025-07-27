@@ -14,33 +14,30 @@ function ZoneLocked.RefreshMode()
         ZoneLocked.CreateSkillBar()
         ZoneLocked.CreateSkillModeButton()
         ZoneLocked.UpdateSkillBar()
-
     elseif mode == "medium" then
         -- War Effort UI
         if ZoneLocked.ShowWarEffortUI then
             ZoneLocked.ShowWarEffortUI()
         end
-
     elseif mode == "manual" then
         -- Ingen spesiell UI
         ZoneLocked.Print("Manual mode active. No automatic tracking.")
-
     elseif mode == "hard" then
         -- Token-knapp vises bare hvis randomUnlock er på og tokens > 0
         ZoneLocked.CreateFloatingTokenButton()
         ZoneLocked.UpdateFloatingTokenButton()
-
     elseif mode == "att" then
         ZoneLocked.EnableATTMode()
         if ZoneLocked.UpdateATTProgress then
             ZoneLocked.UpdateATTProgress()
         end
-
+    elseif mode == "loremaster" then
+        ZoneLocked.EnableLoremasterMode()
+        ZoneLocked.UpdateLoremasterAchievements()
     else
         ZoneLocked.Print("Unknown mode: " .. tostring(mode))
     end
 end
-
 
 function ZoneLocked.GetForcedExpansionsByRace()
     local _, race = UnitRace("player")
@@ -48,7 +45,7 @@ function ZoneLocked.GetForcedExpansionsByRace()
 
     local required = {}
 
-    if race == "bloodelf" or race == "draenei" then 
+    if race == "bloodelf" or race == "draenei" then
         required["Outland"] = true
     elseif race == "goblin" or race == "worgen" then
         required["Cataclysm"] = true
@@ -78,9 +75,9 @@ function ZoneLocked.HandlePandarenFactionUnlock()
     end
 
     if faction == "Alliance" then
-        ZoneLocked.unlockLinked[378] = {37} -- Stormwind (Elwynn Forest)
+        ZoneLocked.unlockLinked[378] = { 37 } -- Stormwind (Elwynn Forest)
     elseif faction == "Horde" then
-        ZoneLocked.unlockLinked[378] = {1} -- Orgrimmar (Durotar)
+        ZoneLocked.unlockLinked[378] = { 1 }  -- Orgrimmar (Durotar)
     end
     ZoneLocked.UnlockZoneWithLinked(378)
 end
@@ -96,19 +93,19 @@ local function MigrateProfessionProgress()
 
     for fullName, value in pairs(flat) do
         local main = fullName:match("Cooking") and "Cooking"
-                  or fullName:match("Fishing") and "Fishing"
-                  or fullName:match("Herbalism") and "Herbalism"
-                  or fullName:match("Skinning") and "Skinning"
-                  or fullName:match("Mining") and "Mining"
-                  or fullName:match("Blacksmithing") and "Blacksmithing"
-                  or fullName:match("Alchemy") and "Alchemy"
-                  or fullName:match("Engineering") and "Engineering"
-                  or fullName:match("Tailoring") and "Tailoring"
-                  or fullName:match("Enchanting") and "Enchanting"
-                  or fullName:match("Inscription") and "Inscription"
-                  or fullName:match("Jewelcrafting") and "Jewelcrafting"
-                  or fullName:match("Leatherworking") and "Leatherworking"
-                  or "Other"
+            or fullName:match("Fishing") and "Fishing"
+            or fullName:match("Herbalism") and "Herbalism"
+            or fullName:match("Skinning") and "Skinning"
+            or fullName:match("Mining") and "Mining"
+            or fullName:match("Blacksmithing") and "Blacksmithing"
+            or fullName:match("Alchemy") and "Alchemy"
+            or fullName:match("Engineering") and "Engineering"
+            or fullName:match("Tailoring") and "Tailoring"
+            or fullName:match("Enchanting") and "Enchanting"
+            or fullName:match("Inscription") and "Inscription"
+            or fullName:match("Jewelcrafting") and "Jewelcrafting"
+            or fullName:match("Leatherworking") and "Leatherworking"
+            or "Other"
 
         new[main] = new[main] or {}
         new[main][fullName] = value
@@ -135,7 +132,7 @@ local function InitSavedData()
 
     ZoneLockedData.attClaimedZones = ZoneLockedData.attClaimedZones or {}
     ZoneLocked.lastCompletedZones = {}
-    
+
     -- Auto-enable expansions based on race
     local forcedExpansions = ZoneLocked.GetForcedExpansionsByRace()
     for expansion, _ in pairs(forcedExpansions) do
@@ -155,6 +152,8 @@ local function InitSavedData()
     end
 
     ZoneLockedData.tokens = ZoneLockedData.tokens or 0
+
+    ZoneLockedData.LoremasterAchieved = ZoneLocked.LoremasterAchieved or {}
 
     ZoneLockedData.redeemedItems = ZoneLockedData.redeemedItems or {}
 
@@ -234,10 +233,11 @@ function ZoneLocked_CheckZoneEntry()
         if not wasOutOfBounds then
             wasOutOfBounds = true
 
-           outOfBoundsTimer = C_Timer.NewTicker(1, function()
+            outOfBoundsTimer = C_Timer.NewTicker(1, function()
                 ZoneLocked.TimeOutofBounds = (ZoneLocked.TimeOutofBounds or 0) + 1
                 ZoneLockedData.TimeOutofBounds = ZoneLocked.TimeOutofBounds
-                ZoneLocked.DebugPrint("|cffff0000[ZoneLocked]|r Time out of bounds: " .. ZoneLocked.TimeOutofBounds .. "s")
+                ZoneLocked.DebugPrint("|cffff0000[ZoneLocked]|r Time out of bounds: " ..
+                    ZoneLocked.TimeOutofBounds .. "s")
             end)
         end
     else
@@ -256,7 +256,6 @@ function ZoneLocked_CheckZoneEntry()
         end
     end
 end
-
 
 function ZoneLocked.PlayerHasWoWToken()
     for bag = 0, NUM_BAG_SLOTS do
@@ -338,6 +337,9 @@ frame:SetScript("OnEvent", function(_, event, ...)
                 ZoneLocked.EnableSkillMode()
             elseif ZoneLockedData.mode == "att" then
                 ZoneLocked.EnableATTMode()
+            elseif ZoneLockedData.mode == "loremaster" then
+                ZoneLocked.EnableLoremasterMode()
+                ZoneLocked.UpdateLoremasterAchievements()
             end
         end
 
@@ -381,4 +383,3 @@ f:SetScript("OnEvent", function(_, event)
         OnBagUpdate()
     end
 end)
-

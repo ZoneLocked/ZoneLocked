@@ -19,6 +19,7 @@ features/medium.lua
 features/att.lua
 features/hard.lua
 features/skill.lua
+features/loremaster.lua
 features/manual.lua
 
 ui/ui.lua

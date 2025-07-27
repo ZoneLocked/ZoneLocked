@@ -34,7 +34,7 @@ function ZoneLocked.AddSkillPoint()
     ZoneLockedData.skillPoints = (ZoneLockedData.skillPoints or 0) + 1
     ZoneLocked.DebugPrint("Skill Point added. Total now: " .. ZoneLockedData.skillPoints)
     ZoneLocked.UpdateSkillModeButton()
-    
+
 
     --ZoneLocked.UpdateSkillBar()
 
@@ -68,7 +68,6 @@ function ZoneLocked.Skill_OnEvent(self, event, ...)
 
         ZoneLocked.AddSkillPoint()
         ZoneLocked.Print("+1 Skill Point for leveling up!")
-
     elseif event == "CHAT_MSG_SKILL" then
         local msg = ...
         ZoneLocked.DebugPrint("CHAT_MSG_SKILL: " .. tostring(msg))
@@ -80,19 +79,19 @@ function ZoneLocked.Skill_OnEvent(self, event, ...)
 
             -- Finn hovedkategori
             local main = skillName:match("Cooking") and "Cooking"
-                      or skillName:match("Fishing") and "Fishing"
-                      or skillName:match("Herbalism") and "Herbalism"
-                      or skillName:match("Skinning") and "Skinning"
-                      or skillName:match("Mining") and "Mining"
-                      or skillName:match("Blacksmithing") and "Blacksmithing"
-                      or skillName:match("Alchemy") and "Alchemy"
-                      or skillName:match("Engineering") and "Engineering"
-                      or skillName:match("Tailoring") and "Tailoring"
-                      or skillName:match("Enchanting") and "Enchanting"
-                      or skillName:match("Inscription") and "Inscription"
-                      or skillName:match("Jewelcrafting") and "Jewelcrafting"
-                      or skillName:match("Leatherworking") and "Leatherworking"
-                      or "Other"
+                or skillName:match("Fishing") and "Fishing"
+                or skillName:match("Herbalism") and "Herbalism"
+                or skillName:match("Skinning") and "Skinning"
+                or skillName:match("Mining") and "Mining"
+                or skillName:match("Blacksmithing") and "Blacksmithing"
+                or skillName:match("Alchemy") and "Alchemy"
+                or skillName:match("Engineering") and "Engineering"
+                or skillName:match("Tailoring") and "Tailoring"
+                or skillName:match("Enchanting") and "Enchanting"
+                or skillName:match("Inscription") and "Inscription"
+                or skillName:match("Jewelcrafting") and "Jewelcrafting"
+                or skillName:match("Leatherworking") and "Leatherworking"
+                or "Other"
 
             ZoneLockedData.professionProgress[main] = ZoneLockedData.professionProgress[main] or {}
             local prevBest = ZoneLockedData.professionProgress[main][skillName] or 0
@@ -107,12 +106,10 @@ function ZoneLocked.Skill_OnEvent(self, event, ...)
         else
             ZoneLocked.DebugPrint("Message did not match expected pattern.")
         end
-
     else
         ZoneLocked.DebugPrint("Unhandled event: " .. tostring(event))
     end
 end
-
 
 function ZoneLocked.CreateSkillModeButton()
     ZoneLocked.DebugPrint("CreateSkillModeButton() called")
