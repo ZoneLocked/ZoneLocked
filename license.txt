@@ -1,0 +1,13 @@
+License: All Rights Reserved
+
+Copyright (c) 2025 Deju
+
+This World of Warcraft AddOn and its source code are protected under international copyright laws.
+
+You may download and use this AddOn for personal use in-game.  
+You may not copy, modify, distribute, sublicense, or reuse any part of the code, assets, or design without explicit written permission from the author.
+
+All rights reserved.
+If you have any questions, or you just want to talk about the AddOn
+
+https://discord.gg/XUUcWf75Pd

@@ -1,0 +1,29 @@
+## Interface: 110105
+## Title: ZoneLocked
+## Author: Deju
+## Version: 1.0.0
+## SavedVariablesPerCharacter: ZoneLockedData
+## OptionalDeps: AllTheThings
+
+core/init.lua
+core/data.lua
+ui/tokenbutton.lua
+ui/skillbar.lua
+core/core.lua
+core/helpers.lua
+core/debug.lua
+core/popup.lua
+
+features/easy.lua
+features/medium.lua
+features/att.lua
+features/hard.lua
+features/skill.lua
+features/manual.lua
+
+ui/ui.lua
+ui/menu.lua
+
+features/mode.lua
+features/overlays.lua
+features/commands.lua
